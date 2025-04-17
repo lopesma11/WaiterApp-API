@@ -1,5 +1,15 @@
-let texto: string;
+import express from "express";
+import mongoose from "mongoose";
 
-texto = "123";
+mongoose
+  .connect("mongodb://localhost:27017")
+  .then(() => {
+    const app = express();
 
-console.log(texto);
+    const port = 3001;
+
+    app.listen(port, () => {
+      console.log(`🚀 Server is running on http://localhost:${port}`);
+    });
+  })
+  .catch(() => console.log("Erro ao conectar no MongoDB"));
