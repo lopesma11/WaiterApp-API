@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { listCategories } from "./app/useCases/categories/listCategories";
 import { createCategories } from "./app/useCases/categories/createCategories";
+import { listProducts } from "./app/useCases/products/listProducts";
+import { createProducts } from "./app/useCases/products/createProducts";
 
 export const router = Router();
 
@@ -11,14 +13,10 @@ router.get("/categories", listCategories);
 router.post("/categories", createCategories);
 
 // List products
-router.get("products", (req, res) => {
-  res.send("OK");
-});
+router.get("/products", listProducts);
 
 // Create product
-router.post("/products", (req, res) => {
-  res.send("OK");
-});
+router.post("/products", createProducts);
 
 // Get products by category
 router.get("/categories/:categoryId/products", (req, res) => {
