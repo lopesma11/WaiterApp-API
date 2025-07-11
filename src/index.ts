@@ -5,17 +5,17 @@ import { router } from "./router";
 import path from "node:path";
 import { Server } from "socket.io";
 
+const app = express();
+const server = http.createServer(app);
+export const io = new Server(server);
+
 mongoose
   .connect("mongodb://localhost:27017")
   .then(() => {
     const port = 3001;
 
-    const app = express();
-    const server = http.createServer(app);
-    const io = new Server(server);
-
-    io.on("connect", () => {
-      console.log("Conectou!");
+    io.on("connection", (socket) => {
+      console.log("Cliente conectado via Socket.IO:", socket.id);
     });
 
     app.use((req, res, next) => {
