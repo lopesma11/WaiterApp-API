@@ -1,39 +1,57 @@
+import "dotenv/config";
 import express from "express";
 import http from "node:http";
 import mongoose from "mongoose";
-import { router } from "./router";
-import path from "node:path";
+import { createServer } from "node:http";
 import { Server } from "socket.io";
+import cors from "cors";
+import path from "node:path";
+import { router } from "./router";
 
-const app = express();
-const server = http.createServer(app);
-export const io = new Server(server);
+const {
+  MONGO_URI = "mongodb://localhost:27017/waiterapp",
+  PORT = "3001",
+  CLIENT_URL = "*",
+} = process.env;
 
 mongoose
-  .connect("mongodb://localhost:27017")
+  .connect(MONGO_URI)
   .then(() => {
-    const port = 3001;
+    const app = express();
+
+    const httpServer = createServer(app);
+
+    const io = new Server(httpServer, {
+      cors: {
+        origin: CLIENT_URL,
+        methods: ["GET", "POST", "PATCH", "DELETE"],
+      },
+    });
 
     io.on("connection", (socket) => {
-      console.log("Cliente conectado via Socket.IO:", socket.id);
+      console.log(`Cliente conectado: ${socket.id}`);
+
+      socket.on("disconnect", () => {
+        console.log(`Cliente desconectado: ${socket.id}`);
+      });
     });
 
-    app.use((req, res, next) => {
-      res.setHeader("Access-Control-Allow-Origin", "*");
-      res.setHeader("Access-Control-Allow-Methods", "*");
-      res.setHeader("Access-Control-Allow-Headers", "*");
+    app.use(cors({ origin: CLIENT_URL }));
 
+    app.use((req, _res, next) => {
+      req.io = io;
       next();
     });
+
     app.use(
       "/uploads",
-      express.static(path.resolve(__dirname, "..", "uploads"))
+      express.static(path.resolve(__dirname, "..", "uploads")),
     );
     app.use(express.json());
     app.use(router);
 
-    server.listen(port, () => {
-      console.log(`🚀 Server is running on http://localhost:${port}`);
+    httpServer.listen(PORT, () => {
+      console.log(`🚀 Server is running on http://localhost:${PORT}`);
     });
   })
-  .catch(() => console.log("Erro ao conectar no MongoDB"));
+  .catch((err) => console.log("Erro ao conectar no MongoDB:", err));
