@@ -4,11 +4,16 @@ import { Order } from "../../models/Order";
 export async function cancelOrder(req: Request, res: Response) {
   try {
     const { orderId } = req.params;
-    await Order.findByIdAndDelete(orderId);
+    const order = await Order.findByIdAndDelete(orderId);
 
-    res.status(204);
+    if (!order) {
+      res.status(404).json({ error: "Pedido não encontrado" });
+      return;
+    }
+
+    res.sendStatus(204);
   } catch (error) {
-    console.log(`Erro: ${error}`);
+    console.log("Erro ao cancelar o pedido:", error);
     res.sendStatus(500);
   }
 }
