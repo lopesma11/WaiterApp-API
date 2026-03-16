@@ -30,6 +30,7 @@ export async function createOrder(req: Request, res: Response) {
 
     req.io.emit("order@new", populatedOrder);
 
+    io.emit("order@new", orderDetails);
     res.status(201).json(order);
   } catch (error) {
     console.log("Erro ao criar pedido:", error);
