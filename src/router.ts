@@ -1,16 +1,16 @@
 import path from "node:path";
 import { Router } from "express";
 import multer from "multer";
-
 import { listCategories } from "./app/useCases/categories/listCategories";
 import { createCategories } from "./app/useCases/categories/createCategories";
 import { listProducts } from "./app/useCases/products/listProducts";
 import { createProducts } from "./app/useCases/products/createProducts";
-import { listProductsByCategory } from "./app/useCases/categories/listProductsByCategory";
 import { listOrders } from "./app/useCases/orders/listOrders";
 import { createOrder } from "./app/useCases/orders/createOrder";
 import { changeOrderStatus } from "./app/useCases/orders/changeOrderStatus";
 import { cancelOrder } from "./app/useCases/orders/cancelOrder";
+import { login } from "./app/useCases/auth/login";
+import { authenticate } from "./app/middlewares/auth";
 
 export const router = Router();
 
@@ -25,29 +25,19 @@ const upload = multer({
   }),
 });
 
-// List Categories
+//-- Pública ------------------------------------------------------------------
+router.post("/auth/login", login);
 router.get("/categories", listCategories);
-
-// Create category
-router.post("/categories", createCategories);
-
-// List products
 router.get("/products", listProducts);
-
-// Create product
-router.post("/products", upload.single("image"), createProducts);
-
-// Get products by category
-router.get("/categories/:categoryId/products", listProductsByCategory);
-
-// List orders
-router.get("/orders", listOrders);
-
-// Create order
 router.post("/orders", createOrder);
 
-// Change order status
-router.patch("/orders/:orderId", changeOrderStatus);
+//-- Protegidas ------------------------------------------------------------------
+router.post("/categories", authenticate, createCategories);
 
-// Delete/cancel order
-router.delete("/orders/:orderId", cancelOrder);
+router.post("/products", authenticate, upload.single("image"), createProducts);
+
+router.get("/orders", authenticate, listOrders);
+
+router.patch("/orders/:orderId", authenticate, changeOrderStatus);
+
+router.delete("/orders/:orderId", authenticate, cancelOrder);

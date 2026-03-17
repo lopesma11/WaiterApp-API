@@ -1,6 +1,5 @@
 import "dotenv/config";
 import express from "express";
-import http from "node:http";
 import mongoose from "mongoose";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
@@ -9,7 +8,7 @@ import path from "node:path";
 import { router } from "./router";
 
 const {
-  MONGO_URI = "mongodb://localhost:27017/waiterapp",
+  MONGO_URI = "mongodb+srv://novosnack:novosnack@novosnack.qtsjjnn.mongodb.net/",
   PORT = "3001",
   CLIENT_URL = "*",
 } = process.env;

@@ -3,14 +3,9 @@ import { z } from "zod";
 import { Order } from "../../models/Order";
 
 const changeStatusSchema = z.object({
-  status: z.enum([
-    ["WAITING", "IN_PRODUCTION", "DONE"],
-    {
-      errorMap: () => ({
-        message: "Status deve ser: WAITING, IN_PRODUCTION ou DONE",
-      }),
-    },
-  ]),
+  status: z.enum(["WAITING", "IN_PRODUCTION", "DONE"], {
+    error: "Status deve ser: WAITING, IN_PRODUCTION ou DONE",
+  }),
 });
 
 export async function changeOrderStatus(
@@ -30,7 +25,7 @@ export async function changeOrderStatus(
     const { status } = req.body;
 
     const order = await Order.findOneAndUpdate(
-      orderId,
+      { _id: orderId },
       { status },
       { new: true },
     );
